@@ -23,6 +23,18 @@ public:
 
     bool validarPassword(const std::string& password) const;
 
+    // Edição pelo próprio utente
+    void setNome(const std::string& novoNome);
+    void setEmail(const std::string& novoEmail);
+    void setContactoTelefonico(const std::string& novoContacto);
+    bool alterarPassword(const std::string& passwordAtual, const std::string& novaPassword);
+
+    // Edição pelo bibliotecário (sem verificação de password)
+    void setNomeBibliotecario(const std::string& novoNome);
+    void setEmailBibliotecario(const std::string& novoEmail);
+    void setContactoBibliotecario(const std::string& novoContacto);
+    void resetPasswordBibliotecario(const std::string& novaPassword);
+
     void mostrar() const;
 };
 

@@ -11,28 +11,23 @@ void Biblioteca::carregarDadosIniciais() {
     livros.push_back(Livro("9780002", "Memorial do Convento", "Jose Saramago", 1982, 2));
     livros.push_back(Livro("9780003", "Harry Potter e a Pedra Filosofal", "J. K. Rowling", 1997, 4));
 
-    utentes.push_back(Utente(1, "Diogo Silva", "diogo@email.com", "999999999", "1234"));
-    utentes.push_back(Utente(2, "Nuno Teixeira", "nuno@email.com", "999999999", "1234"));
-    utentes.push_back(Utente(3, "Gustavo Pereira", "gustavo@email.com", "999999999", "1234"));
+    // FIX: construtor de Utente tem 5 parâmetros; antes faltava o contactoTelefonico
+    utentes.push_back(Utente(1, "Diogo Silva",    "diogo@email.com",    "910000001", "1234"));
+    utentes.push_back(Utente(2, "Nuno Teixeira",  "nuno@email.com",     "910000002", "1234"));
+    utentes.push_back(Utente(3, "Gustavo Pereira","gustavo@email.com",  "910000003", "1234"));
 }
 
 Livro* Biblioteca::procurarLivroPorIsbn(const std::string& isbn) {
     for (Livro& livro : livros) {
-        if (livro.getIsbn() == isbn) {
-            return &livro;
-        }
+        if (livro.getIsbn() == isbn) return &livro;
     }
-
     return nullptr;
 }
 
 Utente* Biblioteca::procurarUtentePorNumero(int numeroUtente) {
     for (Utente& utente : utentes) {
-        if (utente.getNumeroUtente() == numeroUtente) {
-            return &utente;
-        }
+        if (utente.getNumeroUtente() == numeroUtente) return &utente;
     }
-
     return nullptr;
 }
 
@@ -43,7 +38,6 @@ void Biblioteca::consultarCatalogo() const {
     }
 
     std::cout << "\n=== Catalogo de Livros ===\n";
-
     for (const Livro& livro : livros) {
         livro.mostrar();
         std::cout << "--------------------------\n";
@@ -58,7 +52,6 @@ bool Biblioteca::adicionarLivro(const std::string& isbn, const std::string& titu
     }
 
     Livro* livroExistente = procurarLivroPorIsbn(isbn);
-
     if (livroExistente != nullptr) {
         livroExistente->aumentarStock(quantidade);
         std::cout << "Livro ja existente. O stock foi aumentado.\n";
@@ -76,11 +69,9 @@ bool Biblioteca::removerCopiaLivro(const std::string& isbn) {
                 std::cout << "Nao e possivel remover uma copia. Todas as copias estao requisitadas.\n";
                 return false;
             }
-
             if (it->getStockTotal() == 0) {
                 livros.erase(it);
             }
-
             return true;
         }
     }
@@ -91,11 +82,7 @@ bool Biblioteca::removerCopiaLivro(const std::string& isbn) {
 
 Utente* Biblioteca::loginUtente(int numeroUtente, const std::string& password) {
     Utente* utente = procurarUtentePorNumero(numeroUtente);
-
-    if (utente != nullptr && utente->validarPassword(password)) {
-        return utente;
-    }
-
+    if (utente != nullptr && utente->validarPassword(password)) return utente;
     return nullptr;
 }
 
@@ -107,50 +94,31 @@ bool Biblioteca::requisitarLivro(int numeroUtente, const std::string& isbn) {
     Utente* utente = procurarUtentePorNumero(numeroUtente);
     Livro* livro = procurarLivroPorIsbn(isbn);
 
-    if (utente == nullptr) {
-        std::cout << "Utente nao encontrado.\n";
-        return false;
-    }
-
-    if (livro == nullptr) {
-        std::cout << "Livro nao encontrado.\n";
-        return false;
-    }
+    if (utente == nullptr) { std::cout << "Utente nao encontrado.\n"; return false; }
+    if (livro == nullptr)  { std::cout << "Livro nao encontrado.\n";  return false; }
 
     if (!livro->requisitarCopia()) {
         std::cout << "Livro indisponivel. Nao existe stock disponivel.\n";
         return false;
     }
 
-    requisicoes.push_back(Requisicao(
-        numeroUtente,
-        isbn,
-        "17/05/2026",
-        "31/05/2026"
-    ));
-
+    requisicoes.push_back(Requisicao(proximoIdRequisicao, numeroUtente, isbn,
+                                     "17/05/2026", "31/05/2026"));
     proximoIdRequisicao++;
-
     return true;
 }
 
 bool Biblioteca::registarDevolucao(const std::string& isbn) {
     Livro* livro = procurarLivroPorIsbn(isbn);
-
-    if (livro == nullptr) {
-        std::cout << "Livro nao encontrado.\n";
-        return false;
-    }
+    if (livro == nullptr) { std::cout << "Livro nao encontrado.\n"; return false; }
 
     for (Requisicao& requisicao : requisicoes) {
         if (requisicao.getIsbnLivro() == isbn && requisicao.estaAtiva()) {
-            //requisicao.fechar();
-
+            requisicao.fechar();   // FIX: era fecharRequisicao() na classe original
             if (!livro->devolverCopia()) {
                 std::cout << "Erro ao atualizar stock do livro.\n";
                 return false;
             }
-
             return true;
         }
     }
@@ -161,7 +129,6 @@ bool Biblioteca::registarDevolucao(const std::string& isbn) {
 
 void Biblioteca::listarRequisicoesAtivas(int numeroUtente) const {
     bool encontrou = false;
-
     std::cout << "\n=== Requisicoes Ativas ===\n";
 
     for (const Requisicao& requisicao : requisicoes) {
@@ -172,9 +139,7 @@ void Biblioteca::listarRequisicoesAtivas(int numeroUtente) const {
         }
     }
 
-    if (!encontrou) {
-        std::cout << "Nao tem requisicoes ativas de momento.\n";
-    }
+    if (!encontrou) std::cout << "Nao tem requisicoes ativas de momento.\n";
 }
 
 void Biblioteca::listarUtentes() const {
@@ -184,9 +149,84 @@ void Biblioteca::listarUtentes() const {
     }
 
     std::cout << "\n=== Utentes Registados ===\n";
-
     for (const Utente& utente : utentes) {
         utente.mostrar();
         std::cout << "--------------------------\n";
     }
+}
+
+// ─── Edição de perfil pelo utente ───────────────────────────────────────────
+
+bool Biblioteca::editarPerfilUtente(int numeroUtente, const std::string& novoNome,
+                                    const std::string& novoEmail,
+                                    const std::string& novoContacto) {
+    Utente* utente = procurarUtentePorNumero(numeroUtente);
+    if (utente == nullptr) {
+        std::cout << "Utente nao encontrado.\n";
+        return false;
+    }
+
+    if (!novoNome.empty())     utente->setNome(novoNome);
+    if (!novoEmail.empty())    utente->setEmail(novoEmail);
+    if (!novoContacto.empty()) utente->setContactoTelefonico(novoContacto);
+
+    std::cout << "Perfil atualizado com sucesso.\n";
+    return true;
+}
+
+bool Biblioteca::alterarPasswordUtente(int numeroUtente, const std::string& passwordAtual,
+                                       const std::string& novaPassword) {
+    Utente* utente = procurarUtentePorNumero(numeroUtente);
+    if (utente == nullptr) {
+        std::cout << "Utente nao encontrado.\n";
+        return false;
+    }
+    return utente->alterarPassword(passwordAtual, novaPassword);
+}
+
+// ─── Edição pelo bibliotecário ───────────────────────────────────────────────
+
+bool Biblioteca::editarUtenteAdmin(int numeroUtente, const std::string& novoNome,
+                                   const std::string& novoEmail,
+                                   const std::string& novoContacto) {
+    Utente* utente = procurarUtentePorNumero(numeroUtente);
+    if (utente == nullptr) {
+        std::cout << "Utente nao encontrado.\n";
+        return false;
+    }
+
+    if (!novoNome.empty())     utente->setNomeBibliotecario(novoNome);
+    if (!novoEmail.empty())    utente->setEmailBibliotecario(novoEmail);
+    if (!novoContacto.empty()) utente->setContactoBibliotecario(novoContacto);
+
+    std::cout << "Dados do utente atualizados com sucesso.\n";
+    return true;
+}
+
+bool Biblioteca::resetPasswordUtenteAdmin(int numeroUtente, const std::string& novaPassword) {
+    Utente* utente = procurarUtentePorNumero(numeroUtente);
+    if (utente == nullptr) {
+        std::cout << "Utente nao encontrado.\n";
+        return false;
+    }
+
+    utente->resetPasswordBibliotecario(novaPassword);
+    std::cout << "Password do utente redefinida com sucesso.\n";
+    return true;
+}
+
+bool Biblioteca::editarLivro(const std::string& isbn, const std::string& novoTitulo,
+                             const std::string& novoAutor, int novoAno) {
+    Livro* livro = procurarLivroPorIsbn(isbn);
+    if (livro == nullptr) {
+        std::cout << "Livro nao encontrado.\n";
+        return false;
+    }
+
+    if (!novoTitulo.empty()) livro->setTitulo(novoTitulo);
+    if (!novoAutor.empty())  livro->setAutor(novoAutor);
+    if (novoAno > 0)         livro->setAnoPublicacao(novoAno);
+
+    std::cout << "Dados do livro atualizados com sucesso.\n";
+    return true;
 }

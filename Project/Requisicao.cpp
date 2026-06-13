@@ -1,8 +1,8 @@
-
 #include "Requisicao.h"
 #include <iostream>
 
 Requisicao::Requisicao() {
+    this->id = 0;
     this->numeroUtente = 0;
     this->isbnLivro = "";
     this->dataRequisicao = "";
@@ -10,8 +10,9 @@ Requisicao::Requisicao() {
     this->ativa = false;
 }
 
-Requisicao::Requisicao(int numeroUtente, const std::string& isbnLivro,
+Requisicao::Requisicao(int id, int numeroUtente, const std::string& isbnLivro,
                        const std::string& dataRequisicao, const std::string& dataLimite) {
+    this->id = id;
     this->numeroUtente = numeroUtente;
     this->isbnLivro = isbnLivro;
     this->dataRequisicao = dataRequisicao;
@@ -19,31 +20,19 @@ Requisicao::Requisicao(int numeroUtente, const std::string& isbnLivro,
     this->ativa = true;
 }
 
-int Requisicao::getNumeroUtente() const {
-    return numeroUtente;
-}
+int Requisicao::getId() const { return id; }
+int Requisicao::getNumeroUtente() const { return numeroUtente; }
+std::string Requisicao::getIsbnLivro() const { return isbnLivro; }
+std::string Requisicao::getDataRequisicao() const { return dataRequisicao; }
+std::string Requisicao::getDataLimite() const { return dataLimite; }
+bool Requisicao::estaAtiva() const { return ativa; }
 
-std::string Requisicao::getIsbnLivro() const {
-    return isbnLivro;
-}
-
-std::string Requisicao::getDataRequisicao() const {
-    return dataRequisicao;
-}
-
-std::string Requisicao::getDataLimite() const {
-    return dataLimite;
-}
-
-bool Requisicao::estaAtiva() const {
-    return ativa;
-}
-
-void Requisicao::fecharRequisicao() {
+void Requisicao::fechar() {
     ativa = false;
 }
 
 void Requisicao::mostrar() const {
+    std::cout << "ID Requisicao: " << id << "\n";
     std::cout << "Numero de utente: " << numeroUtente << "\n";
     std::cout << "ISBN do livro: " << isbnLivro << "\n";
     std::cout << "Data de requisicao: " << dataRequisicao << "\n";

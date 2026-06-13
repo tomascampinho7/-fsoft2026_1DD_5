@@ -5,6 +5,7 @@
 
 class Requisicao {
 private:
+    int id;
     int numeroUtente;
     std::string isbnLivro;
     std::string dataRequisicao;
@@ -13,16 +14,17 @@ private:
 
 public:
     Requisicao();
-    Requisicao(int numeroUtente, const std::string& isbnLivro,
+    Requisicao(int id, int numeroUtente, const std::string& isbnLivro,
                const std::string& dataRequisicao, const std::string& dataLimite);
 
+    int getId() const;
     int getNumeroUtente() const;
     std::string getIsbnLivro() const;
     std::string getDataRequisicao() const;
     std::string getDataLimite() const;
     bool estaAtiva() const;
 
-    void fecharRequisicao();
+    void fechar();           // FIX: era fecharRequisicao() na declaração mas fechar() na chamada
 
     void mostrar() const;
 };

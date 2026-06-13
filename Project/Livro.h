@@ -31,6 +31,11 @@ public:
     bool devolverCopia();
     bool removerCopia();
 
+    // Edição (bibliotecário)
+    void setTitulo(const std::string& novoTitulo);
+    void setAutor(const std::string& novoAutor);
+    void setAnoPublicacao(int novoAno);
+
     void mostrar() const;
 };
 

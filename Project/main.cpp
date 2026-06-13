@@ -1,282 +1,225 @@
 #include <iostream>
+#include <string>
 #include <limits>
 #include "Biblioteca.h"
 
-void limparErroInput() {
-    std::cin.clear();
+// ─── Utilitários ─────────────────────────────────────────────────────────────
+
+void limparBuffer() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-void menuVisitante(Biblioteca& biblioteca) {
+std::string lerLinha(const std::string& prompt) {
+    std::string valor;
+    std::cout << prompt;
+    std::getline(std::cin, valor);
+    return valor;
+}
+
+int lerInteiro(const std::string& prompt) {
+    int valor;
+    std::cout << prompt;
+    while (!(std::cin >> valor)) {
+        std::cin.clear();
+        limparBuffer();
+        std::cout << "Entrada invalida. " << prompt;
+    }
+    limparBuffer();
+    return valor;
+}
+
+// ─── Menus do Utente ─────────────────────────────────────────────────────────
+
+void menuEditarPerfilUtente(Biblioteca& biblioteca, int numeroUtente) {
     int opcao;
-
     do {
-        std::cout << "\n=== Menu Visitante ===\n";
-        std::cout << "1. Consultar catalogo\n";
+        std::cout << "\n--- Editar Perfil ---\n";
+        std::cout << "1. Alterar nome\n";
+        std::cout << "2. Alterar email\n";
+        std::cout << "3. Alterar contacto telefonico\n";
+        std::cout << "4. Alterar password\n";
         std::cout << "0. Voltar\n";
-        std::cout << "Opcao: ";
-        std::cin >> opcao;
+        opcao = lerInteiro("Opcao: ");
 
-        if (std::cin.fail()) {
-            limparErroInput();
-            opcao = -1;
+        if (opcao == 1) {
+            std::string nome = lerLinha("Novo nome: ");
+            biblioteca.editarPerfilUtente(numeroUtente, nome, "", "");
+        } else if (opcao == 2) {
+            std::string email = lerLinha("Novo email: ");
+            biblioteca.editarPerfilUtente(numeroUtente, "", email, "");
+        } else if (opcao == 3) {
+            std::string contacto = lerLinha("Novo contacto: ");
+            biblioteca.editarPerfilUtente(numeroUtente, "", "", contacto);
+        } else if (opcao == 4) {
+            std::string atual  = lerLinha("Password atual: ");
+            std::string nova   = lerLinha("Nova password: ");
+            if (biblioteca.alterarPasswordUtente(numeroUtente, atual, nova)) {
+                std::cout << "Password alterada com sucesso.\n";
+            }
         }
-
-        switch (opcao) {
-            case 1:
-                biblioteca.consultarCatalogo();
-                break;
-            case 0:
-                std::cout << "A voltar ao menu principal...\n";
-                break;
-            default:
-                std::cout << "Opcao invalida.\n";
-        }
-
     } while (opcao != 0);
 }
 
-void menuUtente(Biblioteca& biblioteca, Utente* utente) {
+void menuUtente(Biblioteca& biblioteca, int numeroUtente) {
     int opcao;
-
     do {
         std::cout << "\n=== Menu Utente ===\n";
-        std::cout << "Utente: " << utente->getNome() << "\n";
         std::cout << "1. Consultar catalogo\n";
         std::cout << "2. Requisitar livro\n";
-        std::cout << "3. Consultar requisicoes ativas\n";
-        std::cout << "0. Encerrar sessao\n";
-        std::cout << "Opcao: ";
-        std::cin >> opcao;
+        std::cout << "3. Devolver livro\n";
+        std::cout << "4. Ver as minhas requisicoes ativas\n";
+        std::cout << "5. Editar perfil\n";
+        std::cout << "0. Sair\n";
+        opcao = lerInteiro("Opcao: ");
 
-        if (std::cin.fail()) {
-            limparErroInput();
-            opcao = -1;
-        }
-
-        switch (opcao) {
-            case 1:
-                biblioteca.consultarCatalogo();
-                break;
-
-            case 2: {
-                std::string isbn;
-                std::cout << "Introduza o ISBN do livro: ";
-                std::cin >> isbn;
-
-                if (biblioteca.requisitarLivro(utente->getNumeroUtente(), isbn)) {
-                    std::cout << "Livro requisitado com sucesso.\n";
-                    std::cout << "Data limite de devolucao: 31/05/2026\n";
-                } else {
-                    std::cout << "Nao foi possivel requisitar o livro.\n";
-                }
-
-                break;
+        if (opcao == 1) {
+            biblioteca.consultarCatalogo();
+        } else if (opcao == 2) {
+            std::string isbn = lerLinha("ISBN do livro: ");
+            if (biblioteca.requisitarLivro(numeroUtente, isbn)) {
+                std::cout << "Livro requisitado com sucesso.\n";
             }
-
-            case 3:
-                biblioteca.listarRequisicoesAtivas(utente->getNumeroUtente());
-                break;
-
-            case 0:
-                std::cout << "Sessao encerrada com sucesso.\n";
-                break;
-
-            default:
-                std::cout << "Opcao invalida.\n";
+        } else if (opcao == 3) {
+            std::string isbn = lerLinha("ISBN do livro a devolver: ");
+            if (biblioteca.registarDevolucao(isbn)) {
+                std::cout << "Livro devolvido com sucesso.\n";
+            }
+        } else if (opcao == 4) {
+            biblioteca.listarRequisicoesAtivas(numeroUtente);
+        } else if (opcao == 5) {
+            menuEditarPerfilUtente(biblioteca, numeroUtente);
         }
+    } while (opcao != 0);
+}
 
+// ─── Menus do Bibliotecário ──────────────────────────────────────────────────
+
+void menuEditarUtenteAdmin(Biblioteca& biblioteca) {
+    int numeroUtente = lerInteiro("Numero do utente a editar: ");
+
+    int opcao;
+    do {
+        std::cout << "\n--- Editar Utente (Admin) ---\n";
+        std::cout << "1. Alterar nome\n";
+        std::cout << "2. Alterar email\n";
+        std::cout << "3. Alterar contacto telefonico\n";
+        std::cout << "4. Redefinir password\n";
+        std::cout << "0. Voltar\n";
+        opcao = lerInteiro("Opcao: ");
+
+        if (opcao == 1) {
+            std::string nome = lerLinha("Novo nome: ");
+            biblioteca.editarUtenteAdmin(numeroUtente, nome, "", "");
+        } else if (opcao == 2) {
+            std::string email = lerLinha("Novo email: ");
+            biblioteca.editarUtenteAdmin(numeroUtente, "", email, "");
+        } else if (opcao == 3) {
+            std::string contacto = lerLinha("Novo contacto: ");
+            biblioteca.editarUtenteAdmin(numeroUtente, "", "", contacto);
+        } else if (opcao == 4) {
+            std::string nova = lerLinha("Nova password: ");
+            biblioteca.resetPasswordUtenteAdmin(numeroUtente, nova);
+        }
+    } while (opcao != 0);
+}
+
+void menuEditarLivro(Biblioteca& biblioteca) {
+    std::string isbn = lerLinha("ISBN do livro a editar: ");
+
+    int opcao;
+    do {
+        std::cout << "\n--- Editar Livro ---\n";
+        std::cout << "1. Alterar titulo\n";
+        std::cout << "2. Alterar autor\n";
+        std::cout << "3. Alterar ano de publicacao\n";
+        std::cout << "0. Voltar\n";
+        opcao = lerInteiro("Opcao: ");
+
+        if (opcao == 1) {
+            std::string titulo = lerLinha("Novo titulo: ");
+            biblioteca.editarLivro(isbn, titulo, "", 0);
+        } else if (opcao == 2) {
+            std::string autor = lerLinha("Novo autor: ");
+            biblioteca.editarLivro(isbn, "", autor, 0);
+        } else if (opcao == 3) {
+            int ano = lerInteiro("Novo ano: ");
+            biblioteca.editarLivro(isbn, "", "", ano);
+        }
     } while (opcao != 0);
 }
 
 void menuBibliotecario(Biblioteca& biblioteca) {
     int opcao;
-
     do {
         std::cout << "\n=== Menu Bibliotecario ===\n";
         std::cout << "1. Consultar catalogo\n";
         std::cout << "2. Adicionar livro\n";
-        std::cout << "3. Remover livro\n";
-        std::cout << "4. Registar devolucao\n";
-        std::cout << "5. Listar utentes registados\n";
-        std::cout << "0. Encerrar sessao\n";
-        std::cout << "Opcao: ";
-        std::cin >> opcao;
+        std::cout << "3. Remover copia de livro\n";
+        std::cout << "4. Editar livro\n";
+        std::cout << "5. Listar utentes\n";
+        std::cout << "6. Editar dados de utente\n";
+        std::cout << "0. Sair\n";
+        opcao = lerInteiro("Opcao: ");
 
-        if (std::cin.fail()) {
-            limparErroInput();
-            opcao = -1;
+        if (opcao == 1) {
+            biblioteca.consultarCatalogo();
+        } else if (opcao == 2) {
+            std::string isbn   = lerLinha("ISBN: ");
+            std::string titulo = lerLinha("Titulo: ");
+            std::string autor  = lerLinha("Autor: ");
+            int ano            = lerInteiro("Ano de publicacao: ");
+            int quantidade     = lerInteiro("Quantidade: ");
+            biblioteca.adicionarLivro(isbn, titulo, autor, ano, quantidade);
+        } else if (opcao == 3) {
+            std::string isbn = lerLinha("ISBN do livro: ");
+            biblioteca.removerCopiaLivro(isbn);
+        } else if (opcao == 4) {
+            menuEditarLivro(biblioteca);
+        } else if (opcao == 5) {
+            biblioteca.listarUtentes();
+        } else if (opcao == 6) {
+            menuEditarUtenteAdmin(biblioteca);
         }
-
-        switch (opcao) {
-            case 1:
-                biblioteca.consultarCatalogo();
-                break;
-
-            case 2: {
-                std::string isbn;
-                std::string titulo;
-                std::string autor;
-                int ano;
-
-                std::cout << "ISBN: ";
-                std::cin >> isbn;
-
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-                std::cout << "Titulo: ";
-                std::getline(std::cin, titulo);
-
-                std::cout << "Autor: ";
-                std::getline(std::cin, autor);
-
-                std::cout << "Ano de publicacao: ";
-                std::cin >> ano;
-
-                if (std::cin.fail()) {
-                    limparErroInput();
-                    std::cout << "Ano invalido.\n";
-                    break;
-                }
-
-                if (biblioteca.adicionarLivro(isbn, titulo, autor, ano,1)) {
-                    std::cout << "Livro adicionado com sucesso.\n";
-                } else {
-                    std::cout << "Erro: ja existe um livro com esse ISBN.\n";
-                }
-
-                break;
-            }
-
-            case 3: {
-                std::string isbn;
-                std::cout << "ISBN do livro a remover: ";
-                std::cin >> isbn;
-
-                if (biblioteca.removerCopiaLivro(isbn)) {
-                    std::cout << "Livro removido com sucesso.\n";
-                } else {
-                    std::cout << "Nao foi possivel remover o livro.\n";
-                }
-
-                break;
-            }
-
-            case 4: {
-                std::string isbn;
-                std::cout << "ISBN do livro devolvido: ";
-                std::cin >> isbn;
-
-                if (biblioteca.registarDevolucao(isbn)) {
-                    std::cout << "Devolucao registada com sucesso.\n";
-                } else {
-                    std::cout << "Nao foi possivel registar a devolucao.\n";
-                }
-
-                break;
-            }
-
-            case 5:
-                biblioteca.listarUtentes();
-                break;
-
-            case 0:
-                std::cout << "Sessao encerrada com sucesso.\n";
-                break;
-
-            default:
-                std::cout << "Opcao invalida.\n";
-        }
-
     } while (opcao != 0);
 }
 
-void loginUtente(Biblioteca& biblioteca) {
-    int numeroUtente;
-    std::string password;
-
-    std::cout << "\n=== Login Utente ===\n";
-    std::cout << "Numero de utente: ";
-    std::cin >> numeroUtente;
-
-    if (std::cin.fail()) {
-        limparErroInput();
-        std::cout << "Numero de utente invalido.\n";
-        return;
-    }
-
-    std::cout << "Password: ";
-    std::cin >> password;
-
-    Utente* utente = biblioteca.loginUtente(numeroUtente, password);
-
-    if (utente != nullptr) {
-        std::cout << "Login efetuado com sucesso.\n";
-        menuUtente(biblioteca, utente);
-    } else {
-        std::cout << "Credenciais invalidas.\n";
-    }
-}
-
-void loginBibliotecario(Biblioteca& biblioteca) {
-    std::string username;
-    std::string password;
-
-    std::cout << "\n=== Login Bibliotecario ===\n";
-    std::cout << "Username: ";
-    std::cin >> username;
-
-    std::cout << "Password: ";
-    std::cin >> password;
-
-    if (biblioteca.loginBibliotecario(username, password)) {
-        std::cout << "Login efetuado com sucesso.\n";
-        menuBibliotecario(biblioteca);
-    } else {
-        std::cout << "Credenciais invalidas.\n";
-    }
-}
+// ─── Menu Principal ───────────────────────────────────────────────────────────
 
 int main() {
     Biblioteca biblioteca;
     int opcao;
 
     do {
-        std::cout << "\n=== Sistema de Biblioteca ===\n";
-        std::cout << "1. Entrar como visitante\n";
-        std::cout << "2. Login utente\n";
-        std::cout << "3. Login bibliotecario\n";
+        std::cout << "\n=== Sistema de Gestao de Biblioteca ===\n";
+        std::cout << "1. Login como Utente\n";
+        std::cout << "2. Login como Bibliotecario\n";
         std::cout << "0. Sair\n";
-        std::cout << "Opcao: ";
-        std::cin >> opcao;
+        opcao = lerInteiro("Opcao: ");
 
-        if (std::cin.fail()) {
-            limparErroInput();
-            opcao = -1;
+        if (opcao == 1) {
+            int numero         = lerInteiro("Numero de utente: ");
+            std::string pass   = lerLinha("Password: ");
+            Utente* utente     = biblioteca.loginUtente(numero, pass);
+
+            if (utente == nullptr) {
+                std::cout << "Credenciais invalidas.\n";
+            } else {
+                std::cout << "Bem-vindo, " << utente->getNome() << "!\n";
+                menuUtente(biblioteca, numero);
+            }
+        } else if (opcao == 2) {
+            std::string user = lerLinha("Username: ");
+            std::string pass = lerLinha("Password: ");
+
+            if (!biblioteca.loginBibliotecario(user, pass)) {
+                std::cout << "Credenciais invalidas.\n";
+            } else {
+                std::cout << "Bem-vindo, Bibliotecario!\n";
+                menuBibliotecario(biblioteca);
+            }
         }
-
-        switch (opcao) {
-            case 1:
-                menuVisitante(biblioteca);
-                break;
-
-            case 2:
-                loginUtente(biblioteca);
-                break;
-
-            case 3:
-                loginBibliotecario(biblioteca);
-                break;
-
-            case 0:
-                std::cout << "A sair da aplicacao...\n";
-                break;
-
-            default:
-                std::cout << "Opcao invalida.\n";
-        }
-
     } while (opcao != 0);
 
+    std::cout << "Ate logo!\n";
     return 0;
 }
