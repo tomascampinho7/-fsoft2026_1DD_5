@@ -139,9 +139,7 @@ void menuBibliotecario(Biblioteca& biblioteca) {
                     break;
                 }
 
-                Livro livro(isbn, titulo, autor, ano);
-
-                if (biblioteca.adicionarLivro(livro)) {
+                if (biblioteca.adicionarLivro(isbn, titulo, autor, ano,1)) {
                     std::cout << "Livro adicionado com sucesso.\n";
                 } else {
                     std::cout << "Erro: ja existe um livro com esse ISBN.\n";
@@ -155,7 +153,7 @@ void menuBibliotecario(Biblioteca& biblioteca) {
                 std::cout << "ISBN do livro a remover: ";
                 std::cin >> isbn;
 
-                if (biblioteca.removerLivro(isbn)) {
+                if (biblioteca.removerCopiaLivro(isbn)) {
                     std::cout << "Livro removido com sucesso.\n";
                 } else {
                     std::cout << "Nao foi possivel remover o livro.\n";

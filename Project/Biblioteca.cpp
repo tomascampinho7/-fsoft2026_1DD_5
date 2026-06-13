@@ -11,9 +11,9 @@ void Biblioteca::carregarDadosIniciais() {
     livros.push_back(Livro("9780002", "Memorial do Convento", "Jose Saramago", 1982, 2));
     livros.push_back(Livro("9780003", "Harry Potter e a Pedra Filosofal", "J. K. Rowling", 1997, 4));
 
-    utentes.push_back(Utente(1, "Diogo Silva", "diogo@email.com", "1234"));
-    utentes.push_back(Utente(2, "Nuno Teixeira", "nuno@email.com", "1234"));
-    utentes.push_back(Utente(3, "Gustavo Pereira", "gustavo@email.com", "1234"));
+    utentes.push_back(Utente(1, "Diogo Silva", "diogo@email.com", "999999999", "1234"));
+    utentes.push_back(Utente(2, "Nuno Teixeira", "nuno@email.com", "999999999", "1234"));
+    utentes.push_back(Utente(3, "Gustavo Pereira", "gustavo@email.com", "999999999", "1234"));
 }
 
 Livro* Biblioteca::procurarLivroPorIsbn(const std::string& isbn) {
@@ -123,7 +123,6 @@ bool Biblioteca::requisitarLivro(int numeroUtente, const std::string& isbn) {
     }
 
     requisicoes.push_back(Requisicao(
-        proximoIdRequisicao,
         numeroUtente,
         isbn,
         "17/05/2026",
@@ -145,7 +144,7 @@ bool Biblioteca::registarDevolucao(const std::string& isbn) {
 
     for (Requisicao& requisicao : requisicoes) {
         if (requisicao.getIsbnLivro() == isbn && requisicao.estaAtiva()) {
-            requisicao.fechar();
+            //requisicao.fechar();
 
             if (!livro->devolverCopia()) {
                 std::cout << "Erro ao atualizar stock do livro.\n";
