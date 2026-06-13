@@ -10,5 +10,6 @@ add_executable(BibliotecaApp
     Livro.cpp
     Utente.cpp
     Requisicao.cpp
+    Bibliotecario.cpp
     Biblioteca.cpp
 )
