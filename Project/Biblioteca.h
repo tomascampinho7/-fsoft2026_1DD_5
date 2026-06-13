@@ -40,11 +40,16 @@ public:
     // Gestão de utentes
     void listarUtentes() const;
 
-    // Edição de perfil pelo utente
+    // Edição de perfil pelo utente (requer password atual para alterar password)
     bool editarPerfilUtente(int numeroUtente, const std::string& novoNome,
                             const std::string& novoEmail, const std::string& novoContacto);
     bool alterarPasswordUtente(int numeroUtente, const std::string& passwordAtual,
                                const std::string& novaPassword);
+
+    // Consulta de requisições (bibliotecário)
+    void listarTodasRequisicoes() const;
+    void listarRequisicoesAtivasAdmin() const;
+    void listarRequisicoesUtente(int numeroUtente) const;
 
     // Edição pelo bibliotecário
     bool editarUtenteAdmin(int numeroUtente, const std::string& novoNome,

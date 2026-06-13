@@ -155,6 +155,51 @@ void Biblioteca::listarUtentes() const {
     }
 }
 
+// ─── Consulta de requisições (bibliotecário) ─────────────────────────────────
+
+void Biblioteca::listarTodasRequisicoes() const {
+    if (requisicoes.empty()) {
+        std::cout << "Nao existem requisicoes registadas.\n";
+        return;
+    }
+
+    std::cout << "\n=== Todas as Requisicoes ===\n";
+    for (const Requisicao& r : requisicoes) {
+        r.mostrar();
+        std::cout << "--------------------------\n";
+    }
+}
+
+void Biblioteca::listarRequisicoesAtivasAdmin() const {
+    bool encontrou = false;
+
+    std::cout << "\n=== Requisicoes Ativas ===\n";
+    for (const Requisicao& r : requisicoes) {
+        if (r.estaAtiva()) {
+            r.mostrar();
+            std::cout << "--------------------------\n";
+            encontrou = true;
+        }
+    }
+
+    if (!encontrou) std::cout << "Nao existem requisicoes ativas de momento.\n";
+}
+
+void Biblioteca::listarRequisicoesUtente(int numeroUtente) const {
+    bool encontrou = false;
+
+    std::cout << "\n=== Requisicoes do Utente " << numeroUtente << " ===\n";
+    for (const Requisicao& r : requisicoes) {
+        if (r.getNumeroUtente() == numeroUtente) {
+            r.mostrar();
+            std::cout << "--------------------------\n";
+            encontrou = true;
+        }
+    }
+
+    if (!encontrou) std::cout << "Nao existem requisicoes para este utente.\n";
+}
+
 // ─── Edição de perfil pelo utente ───────────────────────────────────────────
 
 bool Biblioteca::editarPerfilUtente(int numeroUtente, const std::string& novoNome,

@@ -148,6 +148,27 @@ void menuEditarLivro(Biblioteca& biblioteca) {
     } while (opcao != 0);
 }
 
+void menuConsultarRequisicoes(Biblioteca& biblioteca) {
+    int opcao;
+    do {
+        std::cout << "\n--- Consultar Requisicoes ---\n";
+        std::cout << "1. Todas as requisicoes\n";
+        std::cout << "2. Apenas requisicoes ativas\n";
+        std::cout << "3. Requisicoes de um utente\n";
+        std::cout << "0. Voltar\n";
+        opcao = lerInteiro("Opcao: ");
+
+        if (opcao == 1) {
+            biblioteca.listarTodasRequisicoes();
+        } else if (opcao == 2) {
+            biblioteca.listarRequisicoesAtivasAdmin();
+        } else if (opcao == 3) {
+            int numero = lerInteiro("Numero do utente: ");
+            biblioteca.listarRequisicoesUtente(numero);
+        }
+    } while (opcao != 0);
+}
+
 void menuBibliotecario(Biblioteca& biblioteca) {
     int opcao;
     do {
@@ -158,6 +179,7 @@ void menuBibliotecario(Biblioteca& biblioteca) {
         std::cout << "4. Editar livro\n";
         std::cout << "5. Listar utentes\n";
         std::cout << "6. Editar dados de utente\n";
+        std::cout << "7. Consultar requisicoes\n";
         std::cout << "0. Sair\n";
         opcao = lerInteiro("Opcao: ");
 
@@ -179,6 +201,8 @@ void menuBibliotecario(Biblioteca& biblioteca) {
             biblioteca.listarUtentes();
         } else if (opcao == 6) {
             menuEditarUtenteAdmin(biblioteca);
+        } else if (opcao == 7) {
+            menuConsultarRequisicoes(biblioteca);
         }
     } while (opcao != 0);
 }
