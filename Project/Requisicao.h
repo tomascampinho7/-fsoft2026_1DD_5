@@ -24,7 +24,7 @@ public:
     std::string getDataLimite() const;
     bool estaAtiva() const;
 
-    void fechar();           // FIX: era fecharRequisicao() na declaração mas fechar() na chamada
+    void fechar();
 
     void mostrar() const;
 };

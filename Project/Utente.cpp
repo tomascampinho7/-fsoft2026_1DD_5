@@ -27,7 +27,6 @@ bool Utente::validarPassword(const std::string& password) const {
     return this->password == password;
 }
 
-// --- Edição pelo próprio utente ---
 
 void Utente::setNome(const std::string& novoNome) {
     if (!novoNome.empty()) nome = novoNome;
@@ -54,7 +53,6 @@ bool Utente::alterarPassword(const std::string& passwordAtual, const std::string
     return true;
 }
 
-// --- Edição pelo bibliotecário ---
 
 void Utente::setNomeBibliotecario(const std::string& novoNome) {
     if (!novoNome.empty()) nome = novoNome;

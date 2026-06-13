@@ -40,7 +40,7 @@ public:
     // Gestão de utentes
     void listarUtentes() const;
 
-    // Edição de perfil pelo utente (requer password atual para alterar password)
+    // Edição de perfil pelo utente
     bool editarPerfilUtente(int numeroUtente, const std::string& novoNome,
                             const std::string& novoEmail, const std::string& novoContacto);
     bool alterarPasswordUtente(int numeroUtente, const std::string& passwordAtual,
