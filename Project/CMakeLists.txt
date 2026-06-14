@@ -15,4 +15,10 @@ add_executable(BibliotecaApp
         src/Bibliotecario.cpp
         src/Biblioteca.cpp
         src/Interface.cpp
+        Include/Biblioteca.h
+        Include/Bibliotecario.h
+        Include/Interface.h
+        Include/Livro.h
+        Include/Requisicao.h
+        Include/Utente.h
 )

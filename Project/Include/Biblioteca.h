@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "Livro.h"
 #include "Utente.h"
 #include "Bibliotecario.h"
@@ -10,9 +11,9 @@
 
 class Biblioteca {
 private:
-    std::vector<Livro> livros;
-    std::vector<Utente> utentes;
-    std::vector<Bibliotecario> bibliotecarios;
+    std::vector<std::unique_ptr<Livro>> livros;
+    std::vector<std::unique_ptr<Utente>> utentes;
+    std::vector<std::unique_ptr<Bibliotecario>> bibliotecarios;
     std::vector<Requisicao> requisicoes;
     int proximoIdRequisicao;
     int proximoNumeroUtente;
