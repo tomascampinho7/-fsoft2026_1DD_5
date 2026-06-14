@@ -1,9 +1,8 @@
-#include "Biblioteca.h"
+#include "../include/Biblioteca.h"
 #include <iostream>
 #include <algorithm>
 #include <cctype>
 #include <ctime>
-
 
 static std::string toLower(const std::string& s) {
     std::string r = s;
@@ -21,7 +20,6 @@ static bool pareceIsbn(const std::string& s) {
     return true;
 }
 
-
 Biblioteca::Biblioteca() {
     proximoIdRequisicao  = 1;
     proximoNumeroUtente  = 4;
@@ -29,48 +27,47 @@ Biblioteca::Biblioteca() {
 }
 
 void Biblioteca::carregarDadosIniciais() {
-    livros.push_back(Livro("9780001", "Os Maias", "Eca de Queiros", 1888, 3));
-    livros.push_back(Livro("9780002", "Memorial do Convento", "Jose Saramago", 1982, 2));
-    livros.push_back(Livro("9780003", "Harry Potter e a Pedra Filosofal", "J. K. Rowling", 1997, 4));
+    livros.push_back(std::make_unique<Livro>("9780001", "Os Maias", "Eca de Queiros", 1888, 3));
+    livros.push_back(std::make_unique<Livro>("9780002", "Memorial do Convento", "Jose Saramago", 1982, 2));
+    livros.push_back(std::make_unique<Livro>("9780003", "Harry Potter e a Pedra Filosofal", "J. K. Rowling", 1997, 4));
 
-    utentes.push_back(Utente(1, "Diogo Silva",     "diogo@email.com",    "910000001", "1234"));
-    utentes.push_back(Utente(2, "Nuno Teixeira",   "nuno@email.com",     "910000002", "1234"));
-    utentes.push_back(Utente(3, "Gustavo Pereira", "gustavo@email.com",  "910000003", "1234"));
+    utentes.push_back(std::make_unique<Utente>(1, "Diogo Silva",     "diogo@email.com",    "910000001", "1234"));
+    utentes.push_back(std::make_unique<Utente>(2, "Nuno Teixeira",   "nuno@email.com",     "910000002", "1234"));
+    utentes.push_back(std::make_unique<Utente>(3, "Gustavo Pereira", "gustavo@email.com",  "910000003", "1234"));
 
     // Bibliotecário admin inicial
-    bibliotecarios.push_back(Bibliotecario("admin", "admin", "Administrador", true));
+    bibliotecarios.push_back(std::make_unique<Bibliotecario>("admin", "admin", "Administrador", true));
 }
 
 // ─── Pesquisa interna ─────────────────────────────────────────────────────────
 
 Livro* Biblioteca::procurarLivroPorIsbn(const std::string& isbn) {
-    for (Livro& l : livros)
-        if (l.getIsbn() == isbn) return &l;
+    for (auto& l : livros)
+        if (l->getIsbn() == isbn) return l.get();
     return nullptr;
 }
 
 Livro* Biblioteca::procurarLivroPorTitulo(const std::string& titulo) {
     std::string query = toLower(titulo);
-    for (Livro& l : livros)
-        if (toLower(l.getTitulo()).find(query) != std::string::npos) return &l;
+    for (auto& l : livros)
+        if (toLower(l->getTitulo()).find(query) != std::string::npos) return l.get();
     return nullptr;
 }
 
-// Se parecer ISBN pesquisa por ISBN caso contrário pesquisa por título
 Livro* Biblioteca::procurarLivro(const std::string& query) {
     if (pareceIsbn(query)) return procurarLivroPorIsbn(query);
     return procurarLivroPorTitulo(query);
 }
 
 Utente* Biblioteca::procurarUtentePorNumero(int numeroUtente) {
-    for (Utente& u : utentes)
-        if (u.getNumeroUtente() == numeroUtente) return &u;
+    for (auto& u : utentes)
+        if (u->getNumeroUtente() == numeroUtente) return u.get();
     return nullptr;
 }
 
 Bibliotecario* Biblioteca::procurarBibliotecario(const std::string& username) {
-    for (Bibliotecario& b : bibliotecarios)
-        if (b.getUsername() == username) return &b;
+    for (auto& b : bibliotecarios)
+        if (b->getUsername() == username) return b.get();
     return nullptr;
 }
 
@@ -79,7 +76,7 @@ Bibliotecario* Biblioteca::procurarBibliotecario(const std::string& username) {
 void Biblioteca::consultarCatalogo() const {
     if (livros.empty()) { std::cout << "O catalogo encontra-se vazio de momento.\n"; return; }
     std::cout << "\n=== Catalogo de Livros ===\n";
-    for (const Livro& l : livros) { l.mostrar(); std::cout << "--------------------------\n"; }
+    for (const auto& l : livros) { l->mostrar(); std::cout << "--------------------------\n"; }
 }
 
 bool Biblioteca::adicionarLivro(const std::string& isbn, const std::string& titulo,
@@ -87,18 +84,19 @@ bool Biblioteca::adicionarLivro(const std::string& isbn, const std::string& titu
     if (quantidade <= 0) { std::cout << "A quantidade deve ser superior a zero.\n"; return false; }
     Livro* existente = procurarLivroPorIsbn(isbn);
     if (existente) { existente->aumentarStock(quantidade); std::cout << "Stock aumentado.\n"; return true; }
-    livros.push_back(Livro(isbn, titulo, autor, ano, quantidade));
+
+    livros.push_back(std::make_unique<Livro>(isbn, titulo, autor, ano, quantidade));
     return true;
 }
 
 bool Biblioteca::removerCopiaLivro(const std::string& isbn) {
     for (auto it = livros.begin(); it != livros.end(); ++it) {
-        if (it->getIsbn() == isbn) {
-            if (!it->removerCopia()) {
+        if ((*it)->getIsbn() == isbn) {
+            if (!(*it)->removerCopia()) {
                 std::cout << "Nao e possivel remover: todas as copias estao requisitadas.\n";
                 return false;
             }
-            if (it->getStockTotal() == 0) livros.erase(it);
+            if ((*it)->getStockTotal() == 0) livros.erase(it);
             return true;
         }
     }
@@ -140,7 +138,7 @@ bool Biblioteca::registarUtente(const std::string& nome, const std::string& emai
         std::cout << "Nome, email e password sao obrigatorios.\n";
         return false;
     }
-    utentes.push_back(Utente(proximoNumeroUtente, nome, email, contacto, password));
+    utentes.push_back(std::make_unique<Utente>(proximoNumeroUtente, nome, email, contacto, password));
     std::cout << "Utente registado com sucesso! Numero de utente: " << proximoNumeroUtente << "\n";
     proximoNumeroUtente++;
     return true;
@@ -149,7 +147,7 @@ bool Biblioteca::registarUtente(const std::string& nome, const std::string& emai
 void Biblioteca::listarUtentes() const {
     if (utentes.empty()) { std::cout << "Nao existem utentes registados.\n"; return; }
     std::cout << "\n=== Utentes Registados ===\n";
-    for (const Utente& u : utentes) { u.mostrar(); std::cout << "--------------------------\n"; }
+    for (const auto& u : utentes) { u->mostrar(); std::cout << "--------------------------\n"; }
 }
 
 bool Biblioteca::editarPerfilUtente(int numeroUtente, const std::string& novoNome,
@@ -204,15 +202,15 @@ bool Biblioteca::adicionarBibliotecario(const std::string& username,
         std::cout << "Ja existe um bibliotecario com esse username.\n";
         return false;
     }
-    bibliotecarios.push_back(Bibliotecario(username, password, nome, false));
+    bibliotecarios.push_back(std::make_unique<Bibliotecario>(username, password, nome, false));
     std::cout << "Bibliotecario \"" << username << "\" criado com sucesso.\n";
     return true;
 }
 
 void Biblioteca::listarBibliotecarios() const {
     std::cout << "\n=== Bibliotecarios Registados ===\n";
-    for (const Bibliotecario& b : bibliotecarios) {
-        b.mostrar();
+    for (const auto& b : bibliotecarios) {
+        b->mostrar();
         std::cout << "--------------------------\n";
     }
 }
@@ -256,7 +254,7 @@ bool Biblioteca::resetPasswordBibliotecarioAdmin(const std::string& username,
 
 bool Biblioteca::requisitarLivro(int numeroUtente, const std::string& query) {
     Utente* utente = procurarUtentePorNumero(numeroUtente);
-    Livro*  livro  = procurarLivro(query);
+    Livro* livro  = procurarLivro(query);
 
     if (!utente) { std::cout << "Utente nao encontrado.\n"; return false; }
     if (!livro)  { std::cout << "Livro nao encontrado.\n";  return false; }
@@ -368,17 +366,16 @@ void Biblioteca::mostrarEstatisticasMes() const {
         }
     }
 
-    // Livro mais requisitado no mês
     std::string isbnMaisReq;
     int maxCount = 0;
-    for (const Livro& livro : livros) {
+    for (const auto& livro : livros) {
         int count = 0;
         for (const Requisicao& r : requisicoes) {
             const std::tm& d = r.getDataRequisicaoTm();
             if (d.tm_mon == mesAtual && d.tm_year == anoAtual &&
-                r.getIsbnLivro() == livro.getIsbn()) count++;
+                r.getIsbnLivro() == livro->getIsbn()) count++;
         }
-        if (count > maxCount) { maxCount = count; isbnMaisReq = livro.getIsbn(); }
+        if (count > maxCount) { maxCount = count; isbnMaisReq = livro->getIsbn(); }
     }
 
     std::cout << "\n=== Estatisticas do Mes ===\n";
@@ -411,8 +408,8 @@ void Biblioteca::mostrarEstatisticasAno() const {
     }
 
     const char* nomesMes[] = {
-        "Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
-        "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+            "Janeiro","Fevereiro","Marco","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
     };
 
     std::cout << "\n=== Estatisticas do Ano (" << (anoAtual + 1900) << ") ===\n";
