@@ -1,10 +1,11 @@
 add_executable(BibliotecaTester
         tests.cpp
-        ../Project/Livro.cpp
-        ../Project/Utente.cpp
-        ../Project/Requisicao.cpp
-        ../Project/Bibliotecario.cpp
-        ../Project/Biblioteca.cpp
+        ../Project/src/Livro.cpp
+        ../Project/src/Utente.cpp
+        ../Project/src/Requisicao.cpp
+        ../Project/src/Bibliotecario.cpp
+        ../Project/src/Biblioteca.cpp
+        ../Project/src/Interface.cpp
 )
 
-target_include_directories(BibliotecaTester PRIVATE ../Project)
+target_include_directories(BibliotecaTester PRIVATE ../Project/Include)

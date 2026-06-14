@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
-#include "Livro.h"
-#include "Utente.h"
-#include "Biblioteca.h"
+#include "Include/Livro.h"
+#include "Include/Utente.h"
+#include "Include/Biblioteca.h"
 
 void testarStockLivro() {
     Livro livro("TESTE001", "Livro Teste", "Autor Teste", 2026, 2);
